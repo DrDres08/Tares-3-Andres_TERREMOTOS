@@ -1,0 +1,98 @@
+---
+title: "Análisis de terremotos: Ubicación de los más fuertes"
+author: "Andrés SG"
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    theme: vapor
+    code-fold: true
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+# Introducción
+
+Los terremotos son uno de los fenómenos naturales más destructivos. En este análisis, exploramos la **ubicación de los terremotos más fuertes** registrados en el conjunto de datos.
+
+
+# Descripción del conjunto de datos
+
+El conjunto contiene 2178 observaciones y 4 variables:
+
+-  profundidad del foco sísmico (en kilómetros).
+- latitud del epicentro.
+- longitud del epicentro.
+-  magnitud en la escala de Richter.
+
+Los datos permiten analizar la distribución espacial e intensidad de los eventos sísmicos.
+
+# Pregunta de investigación
+
+> ¿Dónde ocurren los terremotos más fuertes, y qué patrones espaciales se pueden identificar?
+
+# Carga y preparación de los datos
+
+```{r}
+library(tidyverse)
+library(plotly)
+
+# Cargar datos
+terremotos <- read_csv("terremotos.csv")
+
+# Seleccionar los 100 terremotos más fuertes
+top_terremotos <- terremotos %>%
+  arrange(desc(richter)) %>%
+  slice_head(n = 100)
+```
+
+```{r}
+summary(terremotos)
+```
+
+
+### *Primer grafico*
+
+
+```{r}
+
+p1 <- ggplot(top_terremotos, aes(x = longitude, y = latitude, 
+                                 color = richter, size = richter)) +
+  geom_point(alpha = 0.8) +
+  scale_color_viridis_c() +
+  labs(title = "Ubicación de los 100 terremotos más fuertes",
+       x = "Longitud", y = "Latitud", color = "Magnitud", size = "Magnitud") +
+  theme_minimal()
+
+ggplotly(p1)
+
+```
+
+### *Segundo grafico*
+```{r}
+
+p2 <- ggplot(top_terremotos, aes(x = focal_depth, y = richter)) +
+  geom_point(aes(color = richter), alpha = 0.7) +
+  scale_color_viridis_c() +
+  labs(title = "Profundidad vs Magnitud",
+       x = "Profundidad (km)", y = "Magnitud Richter") +
+  theme_minimal()
+
+ggplotly(p2)
+```
+
+
+### *Imagen con fines ilustrativos*
+
+<div style="text-align: center;">
+  <img src="epicentro.jpg"/>
+  <p><em>Fuente: <a href="https://rsn.ucr.ac.cr/documentos/educativos/sismologia/2329-que-son-el-hipocentro-y-el-epicentro">RSN - UCR</a></em></p>
+</div>
+
+
+
+
+

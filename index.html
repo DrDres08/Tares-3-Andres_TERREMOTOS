@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Andrés SG">
+
+<title>Análisis de terremotos: Ubicación de los más fuertes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="index_files/libs/clipboard/clipboard.min.js"></script>
+<script src="index_files/libs/quarto-html/quarto.js"></script>
+<script src="index_files/libs/quarto-html/popper.min.js"></script>
+<script src="index_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="index_files/libs/quarto-html/anchor.min.js"></script>
+<link href="index_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="index_files/libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="index_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="index_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="index_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="dark">
+<link href="index_files/libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+
+<script src="index_files/libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+
+<script src="index_files/libs/plotly-binding-4.10.4/plotly.js"></script>
+
+<script src="index_files/libs/typedarray-0.1/typedarray.min.js"></script>
+
+<script src="index_files/libs/jquery-3.5.1/jquery.min.js"></script>
+
+<link href="index_files/libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet">
+
+<script src="index_files/libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+
+<link href="index_files/libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet">
+
+<script src="index_files/libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
+
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Tabla de contenidos</h2>
+   
+  <ul class="collapse">
+  <li><a href="#introducción" id="toc-introducción" class="nav-link active" data-scroll-target="#introducción">Introducción</a></li>
+  <li><a href="#descripción-del-conjunto-de-datos" id="toc-descripción-del-conjunto-de-datos" class="nav-link" data-scroll-target="#descripción-del-conjunto-de-datos">Descripción del conjunto de datos</a></li>
+  <li><a href="#pregunta-de-investigación" id="toc-pregunta-de-investigación" class="nav-link" data-scroll-target="#pregunta-de-investigación">Pregunta de investigación</a></li>
+  <li><a href="#carga-y-preparación-de-los-datos" id="toc-carga-y-preparación-de-los-datos" class="nav-link" data-scroll-target="#carga-y-preparación-de-los-datos">Carga y preparación de los datos</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Análisis de terremotos: Ubicación de los más fuertes</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Autor/a</div>
+    <div class="quarto-title-meta-contents">
+             <p>Andrés SG </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introducción" class="level1">
+<h1>Introducción</h1>
+<p>Los terremotos son uno de los fenómenos naturales más destructivos. En este análisis, exploramos la <strong>ubicación de los terremotos más fuertes</strong> registrados en el conjunto de datos.</p>
+</section>
+<section id="descripción-del-conjunto-de-datos" class="level1">
+<h1>Descripción del conjunto de datos</h1>
+<p>El conjunto contiene 2178 observaciones y 4 variables:</p>
+<ul>
+<li>profundidad del foco sísmico (en kilómetros).</li>
+<li>latitud del epicentro.</li>
+<li>longitud del epicentro.</li>
+<li>magnitud en la escala de Richter.</li>
+</ul>
+<p>Los datos permiten analizar la distribución espacial e intensidad de los eventos sísmicos.</p>
+</section>
+<section id="pregunta-de-investigación" class="level1">
+<h1>Pregunta de investigación</h1>
+<blockquote class="blockquote">
+<p>¿Dónde ocurren los terremotos más fuertes, y qué patrones espaciales se pueden identificar?</p>
+</blockquote>
+</section>
+<section id="carga-y-preparación-de-los-datos" class="level1">
+<h1>Carga y preparación de los datos</h1>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>  focal_depth        latitude         longitude          richter     
+ Min.   :  0.00   Min.   :-66.490   Min.   :-179.96   Min.   :5.800  
+ 1st Qu.: 21.00   1st Qu.:-12.432   1st Qu.: -67.78   1st Qu.:5.800  
+ Median : 39.00   Median :  0.210   Median : 122.10   Median :5.900  
+ Mean   : 74.36   Mean   :  7.962   Mean   :  54.91   Mean   :5.977  
+ 3rd Qu.: 68.00   3rd Qu.: 36.480   3rd Qu.: 146.86   3rd Qu.:6.100  
+ Max.   :656.00   Max.   : 78.150   Max.   : 180.00   Max.   :6.900  </code></pre>
+</div>
+</div>
+<section id="primer-grafico" class="level3">
+<h3 class="anchored" data-anchor-id="primer-grafico"><em>Primer grafico</em></h3>
+<div class="cell">
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-bc0e53379e2da5a53ed8" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-bc0e53379e2da5a53ed8">{"x":{"data":[{"x":[153.44999999999999,53.920000000000002,54.969999999999999,118.41,28.300000000000001,-167.55000000000001,140.81999999999999,53.530000000000001,160.69,142.02000000000001,128.40000000000001,-70.739999999999995,54.890000000000001,153.18000000000001,-96.579999999999998,-68.260000000000005,54.93,116.68000000000001,-177.27000000000001,147.03999999999999,139.09,133.99000000000001,147.05000000000001,129.78999999999999,125.98,-161.84999999999999,177.93000000000001,-95.799999999999997,122.67,-178.13,128.5,-10.58,147.81999999999999,147.18000000000001,121.70999999999999,-72.560000000000002,151.63999999999999,139.69,-71.209999999999994,143.44,54.909999999999997,166.55000000000001,140.97,145.74000000000001,151.86000000000001,-175.94,-17.559999999999999,155.09,126.01000000000001,-177.41999999999999,-68.930000000000007,137.61000000000001,167.31,-172.28,122,127.01000000000001,-173.12,153.56999999999999,94.719999999999999,139.09999999999999,72.040000000000006,160.5,141.63999999999999,-173.65000000000001,70.900000000000006,146.16999999999999,167.62,70.730000000000004,-71.099999999999994,-153.13,54.57,142.81999999999999,94.609999999999999,-59.640000000000001,-78.829999999999998,95.370000000000005,-77.349999999999994,130.68000000000001,154.05000000000001,159.22,120.34,175.22999999999999,-78.120000000000005,-77.569999999999993,54.93,-61.990000000000002,53.909999999999997,-175.16,142.11000000000001,-177.56999999999999,124.11,-172.02000000000001,160.77000000000001,-175.37,-67.760000000000005,148.62,121.42,57.439999999999998,-156.72,-174.84999999999999],"y":[-4.3499999999999996,70.799999999999997,73.319999999999993,-11.16,-52.259999999999998,53.030000000000001,33.340000000000003,70.840000000000003,-9.7599999999999998,38.229999999999997,2.3399999999999999,-25.510000000000002,73.310000000000002,-4.9299999999999997,18.25,-22.489999999999998,73.329999999999998,-11.390000000000001,-23.530000000000001,43.530000000000001,40.479999999999997,-5.4199999999999999,43.43,-5.54,-2.3999999999999999,53.140000000000001,50.32,16.329999999999998,24.239999999999998,-30.969999999999999,25.73,35.969999999999999,43.439999999999998,43.609999999999999,15.779999999999999,-1.46,52.359999999999999,-3.21,-32.509999999999998,41.369999999999997,73.390000000000001,-11.869999999999999,33.380000000000003,43.119999999999997,-5.8799999999999999,-29.219999999999999,35.979999999999997,-6.6399999999999997,12.470000000000001,-29.02,-20.57,31.989999999999998,-14.6,-17.059999999999999,23.170000000000002,3.02,-15.08,-4.8899999999999997,5.71,41.350000000000001,-6.8499999999999996,-9.9600000000000009,34.009999999999998,-15.75,36.210000000000001,43.159999999999997,-15.56,36.420000000000002,-32.420000000000002,58.350000000000001,73.400000000000006,41.520000000000003,1.9399999999999999,15.789999999999999,-9.1500000000000004,26.02,-2.79,-5.9299999999999997,-5.9299999999999997,52.850000000000001,13.380000000000001,-39.020000000000003,4.96,7.7599999999999998,73.409999999999997,17.370000000000001,70.810000000000002,-24.91,-4.0700000000000003,-29.48,6.2199999999999998,-16.789999999999999,-10,-25.870000000000001,-31.039999999999999,44.109999999999999,22.190000000000001,33.369999999999997,56.649999999999999,-23.609999999999999],"text":["longitude:  153.45<br />latitude:  -4.35<br />richter: 6.9<br />richter: 6.9","longitude:   53.92<br />latitude:  70.80<br />richter: 6.9<br />richter: 6.9","longitude:   54.97<br />latitude:  73.32<br />richter: 6.8<br />richter: 6.8","longitude:  118.41<br />latitude: -11.16<br />richter: 6.8<br />richter: 6.8","longitude:   28.30<br />latitude: -52.26<br />richter: 6.7<br />richter: 6.7","longitude: -167.55<br />latitude:  53.03<br />richter: 6.7<br />richter: 6.7","longitude:  140.82<br />latitude:  33.34<br />richter: 6.7<br />richter: 6.7","longitude:   53.53<br />latitude:  70.84<br />richter: 6.7<br />richter: 6.7","longitude:  160.69<br />latitude:  -9.76<br />richter: 6.7<br />richter: 6.7","longitude:  142.02<br />latitude:  38.23<br />richter: 6.7<br />richter: 6.7","longitude:  128.40<br />latitude:   2.34<br />richter: 6.6<br />richter: 6.6","longitude:  -70.74<br />latitude: -25.51<br />richter: 6.6<br />richter: 6.6","longitude:   54.89<br />latitude:  73.31<br />richter: 6.6<br />richter: 6.6","longitude:  153.18<br />latitude:  -4.93<br />richter: 6.6<br />richter: 6.6","longitude:  -96.58<br />latitude:  18.25<br />richter: 6.6<br />richter: 6.6","longitude:  -68.26<br />latitude: -22.49<br />richter: 6.6<br />richter: 6.6","longitude:   54.93<br />latitude:  73.33<br />richter: 6.6<br />richter: 6.6","longitude:  116.68<br />latitude: -11.39<br />richter: 6.6<br />richter: 6.6","longitude: -177.27<br />latitude: -23.53<br />richter: 6.6<br />richter: 6.6","longitude:  147.04<br />latitude:  43.53<br />richter: 6.6<br />richter: 6.6","longitude:  139.09<br />latitude:  40.48<br />richter: 6.6<br />richter: 6.6","longitude:  133.99<br />latitude:  -5.42<br />richter: 6.5<br />richter: 6.5","longitude:  147.05<br />latitude:  43.43<br />richter: 6.5<br />richter: 6.5","longitude:  129.79<br />latitude:  -5.54<br />richter: 6.5<br />richter: 6.5","longitude:  125.98<br />latitude:  -2.40<br />richter: 6.5<br />richter: 6.5","longitude: -161.85<br />latitude:  53.14<br />richter: 6.5<br />richter: 6.5","longitude:  177.93<br />latitude:  50.32<br />richter: 6.5<br />richter: 6.5","longitude:  -95.80<br />latitude:  16.33<br />richter: 6.5<br />richter: 6.5","longitude:  122.67<br />latitude:  24.24<br />richter: 6.5<br />richter: 6.5","longitude: -178.13<br />latitude: -30.97<br />richter: 6.5<br />richter: 6.5","longitude:  128.50<br />latitude:  25.73<br />richter: 6.5<br />richter: 6.5","longitude:  -10.58<br />latitude:  35.97<br />richter: 6.5<br />richter: 6.5","longitude:  147.82<br />latitude:  43.44<br />richter: 6.5<br />richter: 6.5","longitude:  147.18<br />latitude:  43.61<br />richter: 6.5<br />richter: 6.5","longitude:  121.71<br />latitude:  15.78<br />richter: 6.5<br />richter: 6.5","longitude:  -72.56<br />latitude:  -1.46<br />richter: 6.5<br />richter: 6.5","longitude:  151.64<br />latitude:  52.36<br />richter: 6.5<br />richter: 6.5","longitude:  139.69<br />latitude:  -3.21<br />richter: 6.5<br />richter: 6.5","longitude:  -71.21<br />latitude: -32.51<br />richter: 6.5<br />richter: 6.5","longitude:  143.44<br />latitude:  41.37<br />richter: 6.5<br />richter: 6.5","longitude:   54.91<br />latitude:  73.39<br />richter: 6.5<br />richter: 6.5","longitude:  166.55<br />latitude: -11.87<br />richter: 6.5<br />richter: 6.5","longitude:  140.97<br />latitude:  33.38<br />richter: 6.5<br />richter: 6.5","longitude:  145.74<br />latitude:  43.12<br />richter: 6.5<br />richter: 6.5","longitude:  151.86<br />latitude:  -5.88<br />richter: 6.5<br />richter: 6.5","longitude: -175.94<br />latitude: -29.22<br />richter: 6.5<br />richter: 6.5","longitude:  -17.56<br />latitude:  35.98<br />richter: 6.5<br />richter: 6.5","longitude:  155.09<br />latitude:  -6.64<br />richter: 6.5<br />richter: 6.5","longitude:  126.01<br />latitude:  12.47<br />richter: 6.5<br />richter: 6.5","longitude: -177.42<br />latitude: -29.02<br />richter: 6.5<br />richter: 6.5","longitude:  -68.93<br />latitude: -20.57<br />richter: 6.5<br />richter: 6.5","longitude:  137.61<br />latitude:  31.99<br />richter: 6.5<br />richter: 6.5","longitude:  167.31<br />latitude: -14.60<br />richter: 6.5<br />richter: 6.5","longitude: -172.28<br />latitude: -17.06<br />richter: 6.5<br />richter: 6.5","longitude:  122.00<br />latitude:  23.17<br />richter: 6.5<br />richter: 6.5","longitude:  127.01<br />latitude:   3.02<br />richter: 6.5<br />richter: 6.5","longitude: -173.12<br />latitude: -15.08<br />richter: 6.5<br />richter: 6.5","longitude:  153.57<br />latitude:  -4.89<br />richter: 6.5<br />richter: 6.5","longitude:   94.72<br />latitude:   5.71<br />richter: 6.5<br />richter: 6.5","longitude:  139.10<br />latitude:  41.35<br />richter: 6.5<br />richter: 6.5","longitude:   72.04<br />latitude:  -6.85<br />richter: 6.5<br />richter: 6.5","longitude:  160.50<br />latitude:  -9.96<br />richter: 6.5<br />richter: 6.5","longitude:  141.64<br />latitude:  34.01<br />richter: 6.5<br />richter: 6.5","longitude: -173.65<br />latitude: -15.75<br />richter: 6.5<br />richter: 6.5","longitude:   70.90<br />latitude:  36.21<br />richter: 6.5<br />richter: 6.5","longitude:  146.17<br />latitude:  43.16<br />richter: 6.4<br />richter: 6.4","longitude:  167.62<br />latitude: -15.56<br />richter: 6.4<br />richter: 6.4","longitude:   70.73<br />latitude:  36.42<br />richter: 6.4<br />richter: 6.4","longitude:  -71.10<br />latitude: -32.42<br />richter: 6.4<br />richter: 6.4","longitude: -153.13<br />latitude:  58.35<br />richter: 6.4<br />richter: 6.4","longitude:   54.57<br />latitude:  73.40<br />richter: 6.4<br />richter: 6.4","longitude:  142.82<br />latitude:  41.52<br />richter: 6.4<br />richter: 6.4","longitude:   94.61<br />latitude:   1.94<br />richter: 6.4<br />richter: 6.4","longitude:  -59.64<br />latitude:  15.79<br />richter: 6.4<br />richter: 6.4","longitude:  -78.83<br />latitude:  -9.15<br />richter: 6.4<br />richter: 6.4","longitude:   95.37<br />latitude:  26.02<br />richter: 6.4<br />richter: 6.4","longitude:  -77.35<br />latitude:  -2.79<br />richter: 6.4<br />richter: 6.4","longitude:  130.68<br />latitude:  -5.93<br />richter: 6.4<br />richter: 6.4","longitude:  154.05<br />latitude:  -5.93<br />richter: 6.4<br />richter: 6.4","longitude:  159.22<br />latitude:  52.85<br />richter: 6.4<br />richter: 6.4","longitude:  120.34<br />latitude:  13.38<br />richter: 6.4<br />richter: 6.4","longitude:  175.23<br />latitude: -39.02<br />richter: 6.4<br />richter: 6.4","longitude:  -78.12<br />latitude:   4.96<br />richter: 6.4<br />richter: 6.4","longitude:  -77.57<br />latitude:   7.76<br />richter: 6.4<br />richter: 6.4","longitude:   54.93<br />latitude:  73.41<br />richter: 6.4<br />richter: 6.4","longitude:  -61.99<br />latitude:  17.37<br />richter: 6.4<br />richter: 6.4","longitude:   53.91<br />latitude:  70.81<br />richter: 6.4<br />richter: 6.4","longitude: -175.16<br />latitude: -24.91<br />richter: 6.4<br />richter: 6.4","longitude:  142.11<br />latitude:  -4.07<br />richter: 6.4<br />richter: 6.4","longitude: -177.57<br />latitude: -29.48<br />richter: 6.4<br />richter: 6.4","longitude:  124.11<br />latitude:   6.22<br />richter: 6.4<br />richter: 6.4","longitude: -172.02<br />latitude: -16.79<br />richter: 6.4<br />richter: 6.4","longitude:  160.77<br />latitude: -10.00<br />richter: 6.4<br />richter: 6.4","longitude: -175.37<br />latitude: -25.87<br />richter: 6.4<br />richter: 6.4","longitude:  -67.76<br />latitude: -31.04<br />richter: 6.4<br />richter: 6.4","longitude:  148.62<br />latitude:  44.11<br />richter: 6.4<br />richter: 6.4","longitude:  121.42<br />latitude:  22.19<br />richter: 6.4<br />richter: 6.4","longitude:   57.44<br />latitude:  33.37<br />richter: 6.4<br />richter: 6.4","longitude: -156.72<br />latitude:  56.65<br />richter: 6.4<br />richter: 6.4","longitude: -174.85<br />latitude: -23.61<br />richter: 6.4<br />richter: 6.4"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":["rgba(253,231,37,1)","rgba(253,231,37,1)","rgba(122,209,81,1)","rgba(122,209,81,1)","rgba(34,168,132,1)","rgba(34,168,132,1)","rgba(34,168,132,1)","rgba(34,168,132,1)","rgba(34,168,132,1)","rgba(34,168,132,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)"],"opacity":0.80000000000000004,"size":[22.677165354330711,22.677165354330711,20.682088648817295,20.682088648817295,18.417574851807558,18.417574851807558,18.417574851807558,18.417574851807558,18.417574851807558,18.417574851807558,15.731443125045821,15.731443125045821,15.731443125045821,15.731443125045821,15.731443125045821,15.731443125045821,15.731443125045821,15.731443125045821,15.731443125045821,15.731443125045821,15.731443125045821,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,12.230808103936198,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185,3.7795275590551185],"symbol":"circle","line":{"width":1.8897637795275593,"color":["rgba(253,231,37,1)","rgba(253,231,37,1)","rgba(122,209,81,1)","rgba(122,209,81,1)","rgba(34,168,132,1)","rgba(34,168,132,1)","rgba(34,168,132,1)","rgba(34,168,132,1)","rgba(34,168,132,1)","rgba(34,168,132,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)"]}},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[-100],"y":[-50],"name":"5963f53e2bb3128e6e226c442273dc98","type":"scatter","mode":"markers","opacity":0,"hoverinfo":"skip","showlegend":false,"marker":{"color":[0,1],"colorscale":[[0,"#440154"],[0.0033444816053513904,"#440355"],[0.0066889632107027808,"#440456"],[0.010033444816054171,"#440656"],[0.013377926421405562,"#450857"],[0.016722408026755176,"#450958"],[0.020066889632106566,"#450B59"],[0.023411371237457956,"#450D5A"],[0.026755852842809347,"#450E5B"],[0.030100334448160737,"#45105B"],[0.033444816053512127,"#45115C"],[0.036789297658863518,"#45135D"],[0.040133779264214908,"#45145E"],[0.043478260869564522,"#45155F"],[0.046822742474915913,"#451760"],[0.050167224080267303,"#451860"],[0.053511705685618693,"#451961"],[0.056856187290970084,"#461A62"],[0.060200668896321474,"#461B63"],[0.063545150501672865,"#461D64"],[0.066889632107024255,"#461E65"],[0.070234113712373869,"#461F65"],[0.073578595317725259,"#462066"],[0.07692307692307665,"#462167"],[0.08026755852842804,"#462268"],[0.083612040133779431,"#462369"],[0.086956521739130821,"#46246A"],[0.090301003344482211,"#46256B"],[0.093645484949833602,"#46266B"],[0.096989966555183216,"#46276C"],[0.10033444816053461,"#46286D"],[0.103678929765886,"#46296E"],[0.10702341137123739,"#462A6F"],[0.11036789297658878,"#452B70"],[0.11371237458194017,"#452C70"],[0.11705685618729156,"#452D71"],[0.12040133779264295,"#452E72"],[0.12374581939799256,"#452F73"],[0.12709030100334395,"#453074"],[0.13043478260869534,"#453175"],[0.13377926421404673,"#453276"],[0.13712374581939812,"#453377"],[0.14046822742474951,"#453477"],[0.1438127090301009,"#443578"],[0.1471571906354523,"#443679"],[0.15050167224080191,"#44367A"],[0.1538461538461533,"#44377B"],[0.15719063545150469,"#44387C"],[0.16053511705685608,"#44397D"],[0.16387959866220747,"#443A7D"],[0.16722408026755886,"#433B7E"],[0.17056856187291025,"#433C7F"],[0.17391304347826164,"#433D80"],[0.17725752508361126,"#433E81"],[0.18060200668896265,"#433F82"],[0.18394648829431404,"#424083"],[0.18729096989966543,"#424184"],[0.19063545150501682,"#424185"],[0.19397993311036821,"#424285"],[0.1973244147157196,"#414386"],[0.20066889632107099,"#414487"],[0.2040133779264206,"#414587"],[0.20735785953177199,"#414687"],[0.21070234113712338,"#414787"],[0.21404682274247477,"#414888"],[0.21739130434782616,"#404988"],[0.22073578595317755,"#404A88"],[0.22408026755852894,"#404A88"],[0.22742474916388034,"#404B88"],[0.23076923076922995,"#404C88"],[0.23411371237458134,"#404D88"],[0.23745819397993273,"#404E88"],[0.24080267558528412,"#3F4F89"],[0.24414715719063551,"#3F5089"],[0.2474916387959869,"#3F5189"],[0.25083612040133829,"#3F5289"],[0.25418060200668968,"#3F5289"],[0.2575250836120393,"#3E5389"],[0.26086956521739069,"#3E5489"],[0.26421404682274208,"#3E5589"],[0.26755852842809347,"#3E568A"],[0.27090301003344486,"#3D578A"],[0.27424749163879625,"#3D588A"],[0.27759197324414764,"#3D598A"],[0.28093645484949903,"#3D598A"],[0.28428093645484864,"#3C5A8A"],[0.28762541806020003,"#3C5B8A"],[0.29096989966555142,"#3C5C8A"],[0.29431438127090281,"#3B5D8A"],[0.2976588628762542,"#3B5E8B"],[0.30100334448160559,"#3B5F8B"],[0.30434782608695699,"#3A5F8B"],[0.30769230769230838,"#3A608B"],[0.31103678929765977,"#3A618B"],[0.31438127090300938,"#39628B"],[0.31772575250836077,"#39638B"],[0.32107023411371216,"#38648B"],[0.32441471571906355,"#38658C"],[0.32775919732441494,"#38658C"],[0.33110367892976633,"#37668C"],[0.33444816053511772,"#37678C"],[0.33779264214046734,"#36688C"],[0.34113712374581873,"#36698C"],[0.34448160535117012,"#356A8C"],[0.34782608695652151,"#356B8C"],[0.3511705685618729,"#346B8C"],[0.35451505016722429,"#346C8D"],[0.35785953177257568,"#336D8D"],[0.36120401337792707,"#326E8D"],[0.36454849498327846,"#326F8D"],[0.36789297658862807,"#31708D"],[0.37123745819397946,"#31718D"],[0.37458193979933085,"#30718D"],[0.37792642140468224,"#2F728D"],[0.38127090301003363,"#2F738D"],[0.38461538461538503,"#2E748E"],[0.38795986622073642,"#2D758E"],[0.39130434782608781,"#2C768E"],[0.39464882943143742,"#2B778E"],[0.39799331103678881,"#2B778E"],[0.4013377926421402,"#2A788E"],[0.40468227424749159,"#2A798E"],[0.40802675585284298,"#2A7A8E"],[0.41137123745819437,"#2B7B8E"],[0.41471571906354576,"#2B7B8D"],[0.41806020066889715,"#2B7C8D"],[0.42140468227424677,"#2B7D8D"],[0.42474916387959816,"#2B7E8D"],[0.42809364548494955,"#2B7F8D"],[0.43143812709030094,"#2B7F8D"],[0.43478260869565233,"#2B808D"],[0.43812709030100372,"#2B818C"],[0.44147157190635511,"#2B828C"],[0.4448160535117065,"#2B838C"],[0.44816053511705611,"#2C838C"],[0.4515050167224075,"#2C848C"],[0.45484949832775889,"#2C858C"],[0.45819397993311028,"#2C868B"],[0.46153846153846168,"#2C878B"],[0.46488294314381307,"#2C878B"],[0.46822742474916446,"#2C888B"],[0.47157190635451585,"#2C898B"],[0.47491638795986546,"#2C8A8B"],[0.47826086956521685,"#2C8B8B"],[0.48160535117056824,"#2B8B8A"],[0.48494983277591963,"#2B8C8A"],[0.48829431438127102,"#2B8D8A"],[0.49163879598662241,"#2B8E8A"],[0.4949832775919738,"#2B8F8A"],[0.49832775919732519,"#2B8F8A"],[0.50167224080267481,"#2B9089"],[0.5050167224080262,"#2B9189"],[0.50836120401337759,"#2B9289"],[0.51170568561872898,"#2B9389"],[0.51505016722408037,"#2A9389"],[0.51839464882943176,"#2A9489"],[0.52173913043478315,"#2A9588"],[0.52508361204013454,"#2A9688"],[0.52842809364548415,"#2A9788"],[0.53177257525083554,"#2A9788"],[0.53511705685618693,"#299888"],[0.53846153846153832,"#299987"],[0.54180602006688972,"#299A87"],[0.54515050167224111,"#299B87"],[0.5484949832775925,"#289B87"],[0.55183946488294389,"#289C87"],[0.5551839464882935,"#289D87"],[0.55852842809364489,"#279E86"],[0.56187290969899628,"#279F86"],[0.56521739130434767,"#27A086"],[0.56856187290969906,"#26A086"],[0.57190635451505045,"#26A186"],[0.57525083612040184,"#26A285"],[0.57859531772575323,"#25A385"],[0.58193979933110285,"#25A485"],[0.58528428093645424,"#24A485"],[0.58862876254180563,"#24A585"],[0.59197324414715702,"#23A684"],[0.59531772575250841,"#23A784"],[0.5986622073578598,"#22A884"],[0.60200668896321119,"#24A884"],[0.60535117056856258,"#27A983"],[0.60869565217391397,"#2AAA82"],[0.61204013377926358,"#2DAA81"],[0.61538461538461497,"#2FAB81"],[0.61872909698996637,"#32AC80"],[0.62207357859531776,"#34AC7F"],[0.62541806020066915,"#36AD7E"],[0.62876254180602054,"#38AE7E"],[0.63210702341137193,"#3AAE7D"],[0.63545150501672154,"#3CAF7C"],[0.63879598662207293,"#3EB07B"],[0.64214046822742432,"#40B07B"],[0.64548494983277571,"#42B17A"],[0.6488294314381271,"#43B279"],[0.65217391304347849,"#45B278"],[0.65551839464882988,"#47B378"],[0.65886287625418127,"#48B477"],[0.66220735785953266,"#4AB476"],[0.66555183946488228,"#4BB575"],[0.66889632107023367,"#4DB675"],[0.67224080267558506,"#4EB674"],[0.67558528428093645,"#50B773"],[0.67892976588628784,"#51B872"],[0.68227424749163923,"#53B971"],[0.68561872909699062,"#54B971"],[0.68896321070234023,"#55BA70"],[0.69230769230769162,"#57BB6F"],[0.69565217391304301,"#58BB6E"],[0.69899665551839441,"#59BC6D"],[0.7023411371237458,"#5BBD6C"],[0.70568561872909719,"#5CBD6C"],[0.70903010033444858,"#5DBE6B"],[0.71237458193979997,"#5EBF6A"],[0.71571906354515136,"#5FBF69"],[0.71906354515050097,"#61C068"],[0.72240802675585236,"#62C167"],[0.72575250836120375,"#63C166"],[0.72909698996655514,"#64C266"],[0.73244147157190653,"#65C365"],[0.73578595317725792,"#66C464"],[0.73913043478260931,"#67C463"],[0.74247491638795893,"#69C562"],[0.74581939799331032,"#6AC661"],[0.74916387959866171,"#6BC660"],[0.7525083612040131,"#6CC75F"],[0.75585284280936449,"#6DC85E"],[0.75919732441471588,"#6EC85D"],[0.76254180602006727,"#6FC95C"],[0.76588628762541866,"#70CA5B"],[0.76923076923077005,"#71CB5A"],[0.77257525083611966,"#72CB59"],[0.77591973244147106,"#73CC58"],[0.77926421404682245,"#74CD57"],[0.78260869565217384,"#75CD56"],[0.78595317725752523,"#76CE55"],[0.78929765886287662,"#77CF54"],[0.79264214046822801,"#78CF53"],[0.7959866220735794,"#79D052"],[0.79933110367892901,"#7AD151"],[0.8026755852842804,"#7CD151"],[0.80602006688963179,"#7FD250"],[0.80936454849498318,"#81D250"],[0.81270903010033457,"#84D34F"],[0.81605351170568596,"#87D34F"],[0.81939799331103735,"#89D34E"],[0.82274247491638874,"#8CD44D"],[0.82608695652173836,"#8ED44D"],[0.82943143812708975,"#91D54C"],[0.83277591973244114,"#93D54C"],[0.83612040133779253,"#95D54B"],[0.83946488294314392,"#98D64B"],[0.84280936454849531,"#9AD64A"],[0.8461538461538467,"#9DD74A"],[0.84949832775919809,"#9FD749"],[0.8528428093645477,"#A1D748"],[0.8561872909698991,"#A3D848"],[0.85953177257525049,"#A6D847"],[0.86287625418060188,"#A8D947"],[0.86622073578595327,"#AAD946"],[0.86956521739130466,"#ACD946"],[0.87290969899665605,"#AFDA45"],[0.87625418060200744,"#B1DA44"],[0.87959866220735705,"#B3DB44"],[0.88294314381270844,"#B5DB43"],[0.88628762541805983,"#B7DB42"],[0.88963210702341122,"#BADC42"],[0.89297658862876261,"#BCDC41"],[0.896321070234114,"#BEDC40"],[0.89966555183946539,"#C0DD40"],[0.90301003344481678,"#C2DD3F"],[0.9063545150501664,"#C4DE3E"],[0.90969899665551779,"#C6DE3E"],[0.91304347826086918,"#C8DE3D"],[0.91638795986622057,"#CBDF3C"],[0.91973244147157196,"#CDDF3B"],[0.92307692307692335,"#CFDF3B"],[0.92642140468227474,"#D1E03A"],[0.92976588628762613,"#D3E039"],[0.93311036789297575,"#D5E038"],[0.93645484949832714,"#D7E138"],[0.93979933110367853,"#D9E137"],[0.94314381270902992,"#DBE136"],[0.94648829431438131,"#DDE235"],[0.9498327759197327,"#DFE234"],[0.95317725752508409,"#E1E233"],[0.95652173913043548,"#E3E333"],[0.95986622073578687,"#E5E332"],[0.96321070234113648,"#E7E331"],[0.96655518394648787,"#E9E430"],[0.96989966555183926,"#EBE42F"],[0.97324414715719065,"#EDE42E"],[0.97658862876254204,"#EFE52D"],[0.97993311036789343,"#F1E52C"],[0.98327759197324482,"#F3E52B"],[0.98662207357859444,"#F5E62A"],[0.98996655518394583,"#F7E629"],[0.99331103678929722,"#F9E627"],[0.99665551839464861,"#FBE726"],[1,"#FDE725"]],"colorbar":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"thickness":23.039999999999996,"title":"Magnitud","titlefont":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"tickmode":"array","ticktext":["6.4","6.5","6.6","6.7","6.8","6.9"],"tickvals":[0.0016666666666666668,0.20099999999999929,0.40033333333333365,0.59966666666666635,0.79900000000000071,0.99833333333333329],"tickfont":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498},"ticklen":2,"len":0.5}},"xaxis":"x","yaxis":"y","frame":null}],"layout":{"margin":{"t":43.762557077625573,"r":7.3059360730593621,"b":40.182648401826491,"l":43.105022831050235},"font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"title":{"text":"Ubicación de los 100 terremotos más fuertes","font":{"color":"rgba(0,0,0,1)","family":"","size":17.534246575342465},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-195.93299999999999,195.733],"tickmode":"array","ticktext":["-100","0","100"],"tickvals":[-100,0,100],"categoryorder":"array","categoryarray":["-100","0","100"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.6529680365296811,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"y","title":{"text":"Longitud","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-58.543499999999995,79.6935],"tickmode":"array","ticktext":["-50","-25","0","25","50","75"],"tickvals":[-50,-25,0,25,50,75],"categoryorder":"array","categoryarray":["-50","-25","0","25","50","75"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.6529680365296811,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"x","title":{"text":"Latitud","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498},"title":{"text":"Magnitud<br />Magnitud","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"2a5c786b541e":{"x":{},"y":{},"colour":{},"size":{},"type":"scatter"}},"cur_data":"2a5c786b541e","visdat":{"2a5c786b541e":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</section>
+<section id="segundo-grafico" class="level3">
+<h3 class="anchored" data-anchor-id="segundo-grafico"><em>Segundo grafico</em></h3>
+<div class="cell">
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-5da54c573d19ef220fe4" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-5da54c573d19ef220fe4">{"x":{"data":[{"x":[159,0,0,33,33,40,62,0,33,48,90,23,0,43,75,83,0,59,102,21,16,33,42,189,6,43,20,29,42,17,43,14,41,38,40,653,643,41,40,45,0,119,50,41,0,33,34,54,48,56,70,441,182,0,47,38,20,94,82,6,10,4,20,80,102,76,127,205,68,38,0,26,20,1,48,68,88,107,45,99,38,147,20,12,0,41,0,11,102,29,8,33,31,24,4,62,34,34,55,32],"y":[6.9000000000000004,6.9000000000000004,6.7999999999999998,6.7999999999999998,6.7000000000000002,6.7000000000000002,6.7000000000000002,6.7000000000000002,6.7000000000000002,6.7000000000000002,6.5999999999999996,6.5999999999999996,6.5999999999999996,6.5999999999999996,6.5999999999999996,6.5999999999999996,6.5999999999999996,6.5999999999999996,6.5999999999999996,6.5999999999999996,6.5999999999999996,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.5,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004,6.4000000000000004],"text":["focal_depth: 159<br />richter: 6.9<br />richter: 6.9","focal_depth:   0<br />richter: 6.9<br />richter: 6.9","focal_depth:   0<br />richter: 6.8<br />richter: 6.8","focal_depth:  33<br />richter: 6.8<br />richter: 6.8","focal_depth:  33<br />richter: 6.7<br />richter: 6.7","focal_depth:  40<br />richter: 6.7<br />richter: 6.7","focal_depth:  62<br />richter: 6.7<br />richter: 6.7","focal_depth:   0<br />richter: 6.7<br />richter: 6.7","focal_depth:  33<br />richter: 6.7<br />richter: 6.7","focal_depth:  48<br />richter: 6.7<br />richter: 6.7","focal_depth:  90<br />richter: 6.6<br />richter: 6.6","focal_depth:  23<br />richter: 6.6<br />richter: 6.6","focal_depth:   0<br />richter: 6.6<br />richter: 6.6","focal_depth:  43<br />richter: 6.6<br />richter: 6.6","focal_depth:  75<br />richter: 6.6<br />richter: 6.6","focal_depth:  83<br />richter: 6.6<br />richter: 6.6","focal_depth:   0<br />richter: 6.6<br />richter: 6.6","focal_depth:  59<br />richter: 6.6<br />richter: 6.6","focal_depth: 102<br />richter: 6.6<br />richter: 6.6","focal_depth:  21<br />richter: 6.6<br />richter: 6.6","focal_depth:  16<br />richter: 6.6<br />richter: 6.6","focal_depth:  33<br />richter: 6.5<br />richter: 6.5","focal_depth:  42<br />richter: 6.5<br />richter: 6.5","focal_depth: 189<br />richter: 6.5<br />richter: 6.5","focal_depth:   6<br />richter: 6.5<br />richter: 6.5","focal_depth:  43<br />richter: 6.5<br />richter: 6.5","focal_depth:  20<br />richter: 6.5<br />richter: 6.5","focal_depth:  29<br />richter: 6.5<br />richter: 6.5","focal_depth:  42<br />richter: 6.5<br />richter: 6.5","focal_depth:  17<br />richter: 6.5<br />richter: 6.5","focal_depth:  43<br />richter: 6.5<br />richter: 6.5","focal_depth:  14<br />richter: 6.5<br />richter: 6.5","focal_depth:  41<br />richter: 6.5<br />richter: 6.5","focal_depth:  38<br />richter: 6.5<br />richter: 6.5","focal_depth:  40<br />richter: 6.5<br />richter: 6.5","focal_depth: 653<br />richter: 6.5<br />richter: 6.5","focal_depth: 643<br />richter: 6.5<br />richter: 6.5","focal_depth:  41<br />richter: 6.5<br />richter: 6.5","focal_depth:  40<br />richter: 6.5<br />richter: 6.5","focal_depth:  45<br />richter: 6.5<br />richter: 6.5","focal_depth:   0<br />richter: 6.5<br />richter: 6.5","focal_depth: 119<br />richter: 6.5<br />richter: 6.5","focal_depth:  50<br />richter: 6.5<br />richter: 6.5","focal_depth:  41<br />richter: 6.5<br />richter: 6.5","focal_depth:   0<br />richter: 6.5<br />richter: 6.5","focal_depth:  33<br />richter: 6.5<br />richter: 6.5","focal_depth:  34<br />richter: 6.5<br />richter: 6.5","focal_depth:  54<br />richter: 6.5<br />richter: 6.5","focal_depth:  48<br />richter: 6.5<br />richter: 6.5","focal_depth:  56<br />richter: 6.5<br />richter: 6.5","focal_depth:  70<br />richter: 6.5<br />richter: 6.5","focal_depth: 441<br />richter: 6.5<br />richter: 6.5","focal_depth: 182<br />richter: 6.5<br />richter: 6.5","focal_depth:   0<br />richter: 6.5<br />richter: 6.5","focal_depth:  47<br />richter: 6.5<br />richter: 6.5","focal_depth:  38<br />richter: 6.5<br />richter: 6.5","focal_depth:  20<br />richter: 6.5<br />richter: 6.5","focal_depth:  94<br />richter: 6.5<br />richter: 6.5","focal_depth:  82<br />richter: 6.5<br />richter: 6.5","focal_depth:   6<br />richter: 6.5<br />richter: 6.5","focal_depth:  10<br />richter: 6.5<br />richter: 6.5","focal_depth:   4<br />richter: 6.5<br />richter: 6.5","focal_depth:  20<br />richter: 6.5<br />richter: 6.5","focal_depth:  80<br />richter: 6.5<br />richter: 6.5","focal_depth: 102<br />richter: 6.5<br />richter: 6.5","focal_depth:  76<br />richter: 6.4<br />richter: 6.4","focal_depth: 127<br />richter: 6.4<br />richter: 6.4","focal_depth: 205<br />richter: 6.4<br />richter: 6.4","focal_depth:  68<br />richter: 6.4<br />richter: 6.4","focal_depth:  38<br />richter: 6.4<br />richter: 6.4","focal_depth:   0<br />richter: 6.4<br />richter: 6.4","focal_depth:  26<br />richter: 6.4<br />richter: 6.4","focal_depth:  20<br />richter: 6.4<br />richter: 6.4","focal_depth:   1<br />richter: 6.4<br />richter: 6.4","focal_depth:  48<br />richter: 6.4<br />richter: 6.4","focal_depth:  68<br />richter: 6.4<br />richter: 6.4","focal_depth:  88<br />richter: 6.4<br />richter: 6.4","focal_depth: 107<br />richter: 6.4<br />richter: 6.4","focal_depth:  45<br />richter: 6.4<br />richter: 6.4","focal_depth:  99<br />richter: 6.4<br />richter: 6.4","focal_depth:  38<br />richter: 6.4<br />richter: 6.4","focal_depth: 147<br />richter: 6.4<br />richter: 6.4","focal_depth:  20<br />richter: 6.4<br />richter: 6.4","focal_depth:  12<br />richter: 6.4<br />richter: 6.4","focal_depth:   0<br />richter: 6.4<br />richter: 6.4","focal_depth:  41<br />richter: 6.4<br />richter: 6.4","focal_depth:   0<br />richter: 6.4<br />richter: 6.4","focal_depth:  11<br />richter: 6.4<br />richter: 6.4","focal_depth: 102<br />richter: 6.4<br />richter: 6.4","focal_depth:  29<br />richter: 6.4<br />richter: 6.4","focal_depth:   8<br />richter: 6.4<br />richter: 6.4","focal_depth:  33<br />richter: 6.4<br />richter: 6.4","focal_depth:  31<br />richter: 6.4<br />richter: 6.4","focal_depth:  24<br />richter: 6.4<br />richter: 6.4","focal_depth:   4<br />richter: 6.4<br />richter: 6.4","focal_depth:  62<br />richter: 6.4<br />richter: 6.4","focal_depth:  34<br />richter: 6.4<br />richter: 6.4","focal_depth:  34<br />richter: 6.4<br />richter: 6.4","focal_depth:  55<br />richter: 6.4<br />richter: 6.4","focal_depth:  32<br />richter: 6.4<br />richter: 6.4"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":["rgba(253,231,37,1)","rgba(253,231,37,1)","rgba(122,209,81,1)","rgba(122,209,81,1)","rgba(34,168,132,1)","rgba(34,168,132,1)","rgba(34,168,132,1)","rgba(34,168,132,1)","rgba(34,168,132,1)","rgba(34,168,132,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)"],"opacity":0.69999999999999996,"size":5.6692913385826778,"symbol":"circle","line":{"width":1.8897637795275593,"color":["rgba(253,231,37,1)","rgba(253,231,37,1)","rgba(122,209,81,1)","rgba(122,209,81,1)","rgba(34,168,132,1)","rgba(34,168,132,1)","rgba(34,168,132,1)","rgba(34,168,132,1)","rgba(34,168,132,1)","rgba(34,168,132,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(42,120,142,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(65,68,135,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)","rgba(68,1,84,1)"]}},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0],"y":[6.4000000000000004],"name":"fcfe8d00b5bd0f2cbddeff6ea11fa0e2","type":"scatter","mode":"markers","opacity":0,"hoverinfo":"skip","showlegend":false,"marker":{"color":[0,1],"colorscale":[[0,"#440154"],[0.0033444816053513904,"#440355"],[0.0066889632107027808,"#440456"],[0.010033444816054171,"#440656"],[0.013377926421405562,"#450857"],[0.016722408026755176,"#450958"],[0.020066889632106566,"#450B59"],[0.023411371237457956,"#450D5A"],[0.026755852842809347,"#450E5B"],[0.030100334448160737,"#45105B"],[0.033444816053512127,"#45115C"],[0.036789297658863518,"#45135D"],[0.040133779264214908,"#45145E"],[0.043478260869564522,"#45155F"],[0.046822742474915913,"#451760"],[0.050167224080267303,"#451860"],[0.053511705685618693,"#451961"],[0.056856187290970084,"#461A62"],[0.060200668896321474,"#461B63"],[0.063545150501672865,"#461D64"],[0.066889632107024255,"#461E65"],[0.070234113712373869,"#461F65"],[0.073578595317725259,"#462066"],[0.07692307692307665,"#462167"],[0.08026755852842804,"#462268"],[0.083612040133779431,"#462369"],[0.086956521739130821,"#46246A"],[0.090301003344482211,"#46256B"],[0.093645484949833602,"#46266B"],[0.096989966555183216,"#46276C"],[0.10033444816053461,"#46286D"],[0.103678929765886,"#46296E"],[0.10702341137123739,"#462A6F"],[0.11036789297658878,"#452B70"],[0.11371237458194017,"#452C70"],[0.11705685618729156,"#452D71"],[0.12040133779264295,"#452E72"],[0.12374581939799256,"#452F73"],[0.12709030100334395,"#453074"],[0.13043478260869534,"#453175"],[0.13377926421404673,"#453276"],[0.13712374581939812,"#453377"],[0.14046822742474951,"#453477"],[0.1438127090301009,"#443578"],[0.1471571906354523,"#443679"],[0.15050167224080191,"#44367A"],[0.1538461538461533,"#44377B"],[0.15719063545150469,"#44387C"],[0.16053511705685608,"#44397D"],[0.16387959866220747,"#443A7D"],[0.16722408026755886,"#433B7E"],[0.17056856187291025,"#433C7F"],[0.17391304347826164,"#433D80"],[0.17725752508361126,"#433E81"],[0.18060200668896265,"#433F82"],[0.18394648829431404,"#424083"],[0.18729096989966543,"#424184"],[0.19063545150501682,"#424185"],[0.19397993311036821,"#424285"],[0.1973244147157196,"#414386"],[0.20066889632107099,"#414487"],[0.2040133779264206,"#414587"],[0.20735785953177199,"#414687"],[0.21070234113712338,"#414787"],[0.21404682274247477,"#414888"],[0.21739130434782616,"#404988"],[0.22073578595317755,"#404A88"],[0.22408026755852894,"#404A88"],[0.22742474916388034,"#404B88"],[0.23076923076922995,"#404C88"],[0.23411371237458134,"#404D88"],[0.23745819397993273,"#404E88"],[0.24080267558528412,"#3F4F89"],[0.24414715719063551,"#3F5089"],[0.2474916387959869,"#3F5189"],[0.25083612040133829,"#3F5289"],[0.25418060200668968,"#3F5289"],[0.2575250836120393,"#3E5389"],[0.26086956521739069,"#3E5489"],[0.26421404682274208,"#3E5589"],[0.26755852842809347,"#3E568A"],[0.27090301003344486,"#3D578A"],[0.27424749163879625,"#3D588A"],[0.27759197324414764,"#3D598A"],[0.28093645484949903,"#3D598A"],[0.28428093645484864,"#3C5A8A"],[0.28762541806020003,"#3C5B8A"],[0.29096989966555142,"#3C5C8A"],[0.29431438127090281,"#3B5D8A"],[0.2976588628762542,"#3B5E8B"],[0.30100334448160559,"#3B5F8B"],[0.30434782608695699,"#3A5F8B"],[0.30769230769230838,"#3A608B"],[0.31103678929765977,"#3A618B"],[0.31438127090300938,"#39628B"],[0.31772575250836077,"#39638B"],[0.32107023411371216,"#38648B"],[0.32441471571906355,"#38658C"],[0.32775919732441494,"#38658C"],[0.33110367892976633,"#37668C"],[0.33444816053511772,"#37678C"],[0.33779264214046734,"#36688C"],[0.34113712374581873,"#36698C"],[0.34448160535117012,"#356A8C"],[0.34782608695652151,"#356B8C"],[0.3511705685618729,"#346B8C"],[0.35451505016722429,"#346C8D"],[0.35785953177257568,"#336D8D"],[0.36120401337792707,"#326E8D"],[0.36454849498327846,"#326F8D"],[0.36789297658862807,"#31708D"],[0.37123745819397946,"#31718D"],[0.37458193979933085,"#30718D"],[0.37792642140468224,"#2F728D"],[0.38127090301003363,"#2F738D"],[0.38461538461538503,"#2E748E"],[0.38795986622073642,"#2D758E"],[0.39130434782608781,"#2C768E"],[0.39464882943143742,"#2B778E"],[0.39799331103678881,"#2B778E"],[0.4013377926421402,"#2A788E"],[0.40468227424749159,"#2A798E"],[0.40802675585284298,"#2A7A8E"],[0.41137123745819437,"#2B7B8E"],[0.41471571906354576,"#2B7B8D"],[0.41806020066889715,"#2B7C8D"],[0.42140468227424677,"#2B7D8D"],[0.42474916387959816,"#2B7E8D"],[0.42809364548494955,"#2B7F8D"],[0.43143812709030094,"#2B7F8D"],[0.43478260869565233,"#2B808D"],[0.43812709030100372,"#2B818C"],[0.44147157190635511,"#2B828C"],[0.4448160535117065,"#2B838C"],[0.44816053511705611,"#2C838C"],[0.4515050167224075,"#2C848C"],[0.45484949832775889,"#2C858C"],[0.45819397993311028,"#2C868B"],[0.46153846153846168,"#2C878B"],[0.46488294314381307,"#2C878B"],[0.46822742474916446,"#2C888B"],[0.47157190635451585,"#2C898B"],[0.47491638795986546,"#2C8A8B"],[0.47826086956521685,"#2C8B8B"],[0.48160535117056824,"#2B8B8A"],[0.48494983277591963,"#2B8C8A"],[0.48829431438127102,"#2B8D8A"],[0.49163879598662241,"#2B8E8A"],[0.4949832775919738,"#2B8F8A"],[0.49832775919732519,"#2B8F8A"],[0.50167224080267481,"#2B9089"],[0.5050167224080262,"#2B9189"],[0.50836120401337759,"#2B9289"],[0.51170568561872898,"#2B9389"],[0.51505016722408037,"#2A9389"],[0.51839464882943176,"#2A9489"],[0.52173913043478315,"#2A9588"],[0.52508361204013454,"#2A9688"],[0.52842809364548415,"#2A9788"],[0.53177257525083554,"#2A9788"],[0.53511705685618693,"#299888"],[0.53846153846153832,"#299987"],[0.54180602006688972,"#299A87"],[0.54515050167224111,"#299B87"],[0.5484949832775925,"#289B87"],[0.55183946488294389,"#289C87"],[0.5551839464882935,"#289D87"],[0.55852842809364489,"#279E86"],[0.56187290969899628,"#279F86"],[0.56521739130434767,"#27A086"],[0.56856187290969906,"#26A086"],[0.57190635451505045,"#26A186"],[0.57525083612040184,"#26A285"],[0.57859531772575323,"#25A385"],[0.58193979933110285,"#25A485"],[0.58528428093645424,"#24A485"],[0.58862876254180563,"#24A585"],[0.59197324414715702,"#23A684"],[0.59531772575250841,"#23A784"],[0.5986622073578598,"#22A884"],[0.60200668896321119,"#24A884"],[0.60535117056856258,"#27A983"],[0.60869565217391397,"#2AAA82"],[0.61204013377926358,"#2DAA81"],[0.61538461538461497,"#2FAB81"],[0.61872909698996637,"#32AC80"],[0.62207357859531776,"#34AC7F"],[0.62541806020066915,"#36AD7E"],[0.62876254180602054,"#38AE7E"],[0.63210702341137193,"#3AAE7D"],[0.63545150501672154,"#3CAF7C"],[0.63879598662207293,"#3EB07B"],[0.64214046822742432,"#40B07B"],[0.64548494983277571,"#42B17A"],[0.6488294314381271,"#43B279"],[0.65217391304347849,"#45B278"],[0.65551839464882988,"#47B378"],[0.65886287625418127,"#48B477"],[0.66220735785953266,"#4AB476"],[0.66555183946488228,"#4BB575"],[0.66889632107023367,"#4DB675"],[0.67224080267558506,"#4EB674"],[0.67558528428093645,"#50B773"],[0.67892976588628784,"#51B872"],[0.68227424749163923,"#53B971"],[0.68561872909699062,"#54B971"],[0.68896321070234023,"#55BA70"],[0.69230769230769162,"#57BB6F"],[0.69565217391304301,"#58BB6E"],[0.69899665551839441,"#59BC6D"],[0.7023411371237458,"#5BBD6C"],[0.70568561872909719,"#5CBD6C"],[0.70903010033444858,"#5DBE6B"],[0.71237458193979997,"#5EBF6A"],[0.71571906354515136,"#5FBF69"],[0.71906354515050097,"#61C068"],[0.72240802675585236,"#62C167"],[0.72575250836120375,"#63C166"],[0.72909698996655514,"#64C266"],[0.73244147157190653,"#65C365"],[0.73578595317725792,"#66C464"],[0.73913043478260931,"#67C463"],[0.74247491638795893,"#69C562"],[0.74581939799331032,"#6AC661"],[0.74916387959866171,"#6BC660"],[0.7525083612040131,"#6CC75F"],[0.75585284280936449,"#6DC85E"],[0.75919732441471588,"#6EC85D"],[0.76254180602006727,"#6FC95C"],[0.76588628762541866,"#70CA5B"],[0.76923076923077005,"#71CB5A"],[0.77257525083611966,"#72CB59"],[0.77591973244147106,"#73CC58"],[0.77926421404682245,"#74CD57"],[0.78260869565217384,"#75CD56"],[0.78595317725752523,"#76CE55"],[0.78929765886287662,"#77CF54"],[0.79264214046822801,"#78CF53"],[0.7959866220735794,"#79D052"],[0.79933110367892901,"#7AD151"],[0.8026755852842804,"#7CD151"],[0.80602006688963179,"#7FD250"],[0.80936454849498318,"#81D250"],[0.81270903010033457,"#84D34F"],[0.81605351170568596,"#87D34F"],[0.81939799331103735,"#89D34E"],[0.82274247491638874,"#8CD44D"],[0.82608695652173836,"#8ED44D"],[0.82943143812708975,"#91D54C"],[0.83277591973244114,"#93D54C"],[0.83612040133779253,"#95D54B"],[0.83946488294314392,"#98D64B"],[0.84280936454849531,"#9AD64A"],[0.8461538461538467,"#9DD74A"],[0.84949832775919809,"#9FD749"],[0.8528428093645477,"#A1D748"],[0.8561872909698991,"#A3D848"],[0.85953177257525049,"#A6D847"],[0.86287625418060188,"#A8D947"],[0.86622073578595327,"#AAD946"],[0.86956521739130466,"#ACD946"],[0.87290969899665605,"#AFDA45"],[0.87625418060200744,"#B1DA44"],[0.87959866220735705,"#B3DB44"],[0.88294314381270844,"#B5DB43"],[0.88628762541805983,"#B7DB42"],[0.88963210702341122,"#BADC42"],[0.89297658862876261,"#BCDC41"],[0.896321070234114,"#BEDC40"],[0.89966555183946539,"#C0DD40"],[0.90301003344481678,"#C2DD3F"],[0.9063545150501664,"#C4DE3E"],[0.90969899665551779,"#C6DE3E"],[0.91304347826086918,"#C8DE3D"],[0.91638795986622057,"#CBDF3C"],[0.91973244147157196,"#CDDF3B"],[0.92307692307692335,"#CFDF3B"],[0.92642140468227474,"#D1E03A"],[0.92976588628762613,"#D3E039"],[0.93311036789297575,"#D5E038"],[0.93645484949832714,"#D7E138"],[0.93979933110367853,"#D9E137"],[0.94314381270902992,"#DBE136"],[0.94648829431438131,"#DDE235"],[0.9498327759197327,"#DFE234"],[0.95317725752508409,"#E1E233"],[0.95652173913043548,"#E3E333"],[0.95986622073578687,"#E5E332"],[0.96321070234113648,"#E7E331"],[0.96655518394648787,"#E9E430"],[0.96989966555183926,"#EBE42F"],[0.97324414715719065,"#EDE42E"],[0.97658862876254204,"#EFE52D"],[0.97993311036789343,"#F1E52C"],[0.98327759197324482,"#F3E52B"],[0.98662207357859444,"#F5E62A"],[0.98996655518394583,"#F7E629"],[0.99331103678929722,"#F9E627"],[0.99665551839464861,"#FBE726"],[1,"#FDE725"]],"colorbar":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"thickness":23.039999999999996,"title":"richter","titlefont":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"tickmode":"array","ticktext":["6.4","6.5","6.6","6.7","6.8","6.9"],"tickvals":[0.0016666666666666668,0.20099999999999929,0.40033333333333365,0.59966666666666635,0.79900000000000071,0.99833333333333329],"tickfont":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498},"ticklen":2,"len":0.5}},"xaxis":"x","yaxis":"y","frame":null}],"layout":{"margin":{"t":43.762557077625573,"r":7.3059360730593621,"b":40.182648401826491,"l":43.105022831050235},"font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"title":{"text":"Profundidad vs Magnitud","font":{"color":"rgba(0,0,0,1)","family":"","size":17.534246575342465},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-32.649999999999999,685.64999999999998],"tickmode":"array","ticktext":["0","200","400","600"],"tickvals":[0,199.99999999999997,400.00000000000006,600],"categoryorder":"array","categoryarray":["0","200","400","600"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.6529680365296811,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"y","title":{"text":"Profundidad (km)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[6.375,6.9250000000000007],"tickmode":"array","ticktext":["6.4","6.5","6.6","6.7","6.8","6.9"],"tickvals":[6.4000000000000004,6.5,6.6000000000000005,6.7000000000000002,6.8000000000000007,6.9000000000000004],"categoryorder":"array","categoryarray":["6.4","6.5","6.6","6.7","6.8","6.9"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.6529680365296811,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"x","title":{"text":"Magnitud Richter","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498},"title":{"text":"richter","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"2a5c65d55f11":{"x":{},"y":{},"colour":{},"type":"scatter"}},"cur_data":"2a5c65d55f11","visdat":{"2a5c65d55f11":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</section>
+<section id="imagen-con-fines-ilustrativos" class="level3">
+<h3 class="anchored" data-anchor-id="imagen-con-fines-ilustrativos"><em>Imagen con fines ilustrativos</em></h3>
+<div style="text-align: center;">
+<img src="epicentro.jpg">
+<p>
+<em>Fuente: <a href="https://rsn.ucr.ac.cr/documentos/educativos/sismologia/2329-que-son-el-hipocentro-y-el-epicentro">RSN - UCR</a></em>
+</p>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copiado");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copiado");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
